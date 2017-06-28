@@ -4,7 +4,7 @@
 // @description Translates the content of the TW Classic version into German.
 // @include     *classic.the*west.net*
 // @run-at      document-end
-// @version     1.08
+// @version     1.09
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
