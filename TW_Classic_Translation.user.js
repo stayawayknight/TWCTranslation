@@ -420,6 +420,7 @@ TWCT = function () {
             }
         ],
         accept_agb: 'Ich akzeptiere die AGB.',
+        accept_quest: 'Quest annehmen',
         at_least_one_labor_point: 'Um eine Arbeit machen zu können brauchst du mindestens einen Arbeitspunkt.',
         automation_advert: 'Mit dem Premiumbonus <i>Automatisierung</i> kannst du vier Arbeiten in die' +
         'Arbeitsschleife einstellen, die nacheinander abgearbeitet werden.',
@@ -429,6 +430,7 @@ TWCT = function () {
         cash_description: '<b>Bargeld</b>. Dein Bargeld ist nicht gesichert. Dieses kann dir z.B. im' +
         ' Duell abgenommen werden.',
         cancel: 'Abbrechen',
+        cancel_quest: 'Quest abbrechen',
         center_character: 'Karte auf deinen Charakter zentrieren',
         center_map: 'Karte auf deine Stadt zentrieren',
         change: 'Ändern',
@@ -436,6 +438,7 @@ TWCT = function () {
         character_name: 'Charaktername:',
         character_stats: ['Stufe', 'Erfahrungspunkte', 'Lebenspunkte', 'Erholung', 'Geschwindigkeit', 'Duellstufe',
             'Duelle gewonnen', 'Duelle verloren'],
+        completed_quests: 'Abgeschlossene Quests',
         confirm_password: 'Passwort bestätigen:',
         contact: 'Impressum',
         current_assignments: 'Eingestellte Arbeiten',
@@ -454,8 +457,32 @@ TWCT = function () {
         done: 'Fertig',
         duration: 'Dauer:',
         employers: {
-            barkeeper: 'Barkeeper Henry Walker', lady: 'Maria Roalstad', sheriff: 'Sheriff John Fitzburn',
-            indian: 'Waupee (White Hawk)'
+            barkeeper: {
+                name: 'Barkeeper Henry Walker',
+                text: '<p>Hinter dem Tresen steht Henry Walker, der Barkeeper und Besitzer des Saloons. ' +
+                'Er ist ein leicht beleibter Mann, der etwa 50 Jahre alt ist.</p>\n<p>Du ' +
+                'erkennst, dass er am ganzen Körper viele kleine Narben hat. Besonders seine Hände ' +
+                'deuten darauf hin, dass er in seiner Vergangenheit viele Abenteuer erlebt haben muss.' +
+                ' Henry Walker hat ein freundliches Gesicht und eine beruhigende Stimme.</p>'
+            }, lady: {
+                name: 'Maria Roalstad', text: '<p>Maria ist Tänzerin und Bedienung in Henry Walkers Saloon.' +
+                ' Sie hat ein sehr selbstbewusstes Auftreten und hat eindeutig das Sagen unter den Tänzerinnen.</p>'
+            },
+            sheriff: {
+                name: 'Sheriff John Fitzburn', text: '<p>Ein etwa 40 Jahre alter Mann sitzt dir gegenüber.' +
+                ' An seinem goldenen Stern auf der Brust erkennst du ihn als den örtlichen Sheriff.</p>\n<p>Der Mann' +
+                ' stellt sich dir als John Fitzburn vor. Beim ersten Wort riechst du, dass es nicht sein erstes Glas' +
+                ' Whiskey am heutigen Tag war. Dennoch nimmt er dich vollkommen wahr und spricht noch' +
+                ' sehr kontrolliert.</p>'
+            }, indian: {
+                name: 'Waupee (White Hawk)',
+                text: '<p>Es ist leicht zu erkennen, dass Waupee ein Ureinwohner Amerikas ist.' +
+                ' Es ist ungewöhnlich einen Indianer in einem Saloon zu finden.' +
+                ' Im Gegensatz zu anderen Indianern raucht er seine Pfeife nicht als rituelles Zeichen,' +
+                ' sondern aus Genuss.</p>\n<p>Waupee versucht keinen Kontakt zu anderen Gästen im Saloon aufzunehmen,' +
+                ' er wirkt emotionslos. Eine enge Freundschaft zwischen ihm und Henry Walker scheint der Grund' +
+                ' für seine Anwesenheit zu sein.</p>'
+            }
         },
         energy: 'Erholung',
         errors: {
@@ -476,6 +503,7 @@ TWCT = function () {
         ' du für die Arbeit bekommst.',
         experience_point: 'Erfahrungspunkt',
         experience_points: 'Erfahrungspunkte',
+        finish_quest: 'Quest abschließen',
         forum: 'The-West-Forum',
         forum_link: 'https://forum.the-west.de',
         found_town: 'Stadt gründen',
@@ -505,6 +533,7 @@ TWCT = function () {
         number_of_players: 'Spieleranzahl',
         ok: 'Ok',
         oid_sign_up: 'Mit OpenID anmelden',
+        open_quests: 'Offene Quests',
         password: 'Passwort:',
         password_sign_up: 'Mit Passwort anmelden',
         player: 'Spieler',
@@ -561,15 +590,24 @@ TWCT = function () {
             shot: 'Schusswaffe',
             hand: 'Schlagwaffe'
         },
-        work_time:['10 Minuten', '30 Minuten', '1 Stunde', '2 Stunden'],
+        work_time: ['10 Minuten', '30 Minuten', '1 Stunde', '2 Stunden'],
         world: 'Welt',
         wrong_password: 'Das Passwort ist falsch',
         you_are_here: 'Hier befindest du dich!'
     };
 
     var basic = {
+        buttonHideChanged: false,
         //Replaces an image button element with an javascript button with dynamic text, given in the text parameter
         replaceWestButton: function (image_element, text) {
+
+            if (!this.buttonHideChanged) {
+                //Change the way how buttons are hidden and made visible again (inline-block instead of block):
+                Button.prototype.setVisible = function (visible) {
+                    this.el.style.display = visible ? 'inline-block' : 'none';
+                }
+                this.buttonHideChanged = true;
+            }
 
             //Create the button itself
             var button = document.createElement('div');
@@ -631,14 +669,52 @@ TWCT = function () {
             //Copy events from old element
             button.cloneEvents(image_element);
 
-            console.log(image_element);
-
             //Finally replace image button with javascript button
             if (image_element.parentElement) {
                 image_element.parentElement.replaceChild(button, image_element);
             } else {
                 image_element.parent.replaceChild(button, image_element);
             }
+        },
+
+        //Finds the matching item translation for a given item id using binary search; will return null if not found
+        findItemTranslationByID: function (id) {
+            var minIndex = 0;
+            var maxIndex = TWCT.lang.items.length - 1;
+            var currentIndex = 0;
+            var currentItemID = 0;
+            while (minIndex <= maxIndex) {
+                currentIndex = (minIndex + maxIndex) / 2 | 0;
+                currentItemID = TWCT.lang.items[currentIndex].item_id;
+                if (currentItemID < id) {
+                    minIndex = currentIndex + 1;
+                } else if (currentItemID > id) {
+                    maxIndex = currentIndex - 1;
+                } else {
+                    return TWCT.lang.items[currentIndex];
+                }
+            }
+            return null;
+        },
+
+        //Finds the matching quest translation for a given quest id using binary search; will return null if not found
+        findQuestTranslationByID: function (id) {
+            var minIndex = 0;
+            var maxIndex = TWCT.lang.quests.length - 1;
+            var currentIndex = 0;
+            var currentItemID = 0;
+            while (minIndex <= maxIndex) {
+                currentIndex = (minIndex + maxIndex) / 2 | 0;
+                currentItemID = TWCT.lang.quests[currentIndex].quest_id;
+                if (currentItemID < id) {
+                    minIndex = currentIndex + 1;
+                } else if (currentItemID > id) {
+                    maxIndex = currentIndex - 1;
+                } else {
+                    return TWCT.lang.quests[currentIndex];
+                }
+            }
+            return null;
         }
     };
 
@@ -1074,7 +1150,7 @@ TWCT = function () {
         //Retrieve minimap legend
         var minimap_list = document.getElementById('minimap_list').getChildren();
         //Translate legend
-        for(var i = 0; i < TWCT.lang.minimap_legend.length; i++){
+        for (var i = 0; i < TWCT.lang.minimap_legend.length; i++) {
             minimap_list[i].getChildren()[0].innerHTML = TWCT.lang.minimap_legend[i];
         }
 
@@ -1360,32 +1436,60 @@ TWCT = function () {
             };
         }
     };
+
+    var translate_employer_window = function () {
+        Saloon.request_employer_update = function (employer) {
+            new Ajax('game.php?window=building_saloon&ajax=get_saloon_employer', {
+                method: 'post',
+                data: {
+                    employer: employer
+                },
+                onComplete: function (data) {
+                    data = Json.evaluate(data);
+
+                    var page = document.createElement('div');
+                    page.innerHTML = data;
+
+                    //Translate employer name and text
+                    page.getElementsByTagName('h2')[0].parentNode.innerHTML = '<h2>' +
+                        TWCT.lang.employers[employer].name + '</h2>' + TWCT.lang.employers[employer].text;
+
+                    //Translate table headers
+                    var headers = page.getElementsByClassName('questlog_header');
+                    headers[0].innerHTML = headers[0].innerHTML.replace('Open quests', TWCT.lang.open_quests);
+                    headers[1].innerHTML = headers[1].innerHTML.replace('Completed quests', TWCT.lang.completed_quests);
+
+                    //Iterate through all quests and translate them
+                    var quest_entries = page.getElementsByClassName('questlog_entrie');
+
+                    for (var i = 0; i < quest_entries.length; i++) {
+                        //Get quest link
+                        var quest_link = quest_entries[i].getChildren()[0];
+                        //Retrieve quest id
+                        var quest_id = parseInt((/\{quest_id:(\d+)\}/g).exec(quest_link.href)[1]);
+                        //Get quest translation from id
+                        var quest_translation = basic.findQuestTranslationByID(quest_id);
+                        //Check whether translation available
+                        if (quest_translation == null) {
+                            continue;
+                        }
+                        quest_link.innerHTML = quest_translation.questline + ' (' + quest_translation.name + ')';
+                    }
+
+
+                    $('tab_saloon').innerHTML = page.innerHTML;
+                }.bind(this)
+            }).request();
+        };
+    };
+
     //Translate all game items
     var translate_items = function () {
-        //Finds the matching item translation for a given item id using binary search; will return null if not found
-        var findItemTranslationByID = function (id) {
-            var minIndex = 0;
-            var maxIndex = TWCT.lang.items.length - 1;
-            var currentIndex = 0;
-            var currentItemID = 0;
-            while (minIndex <= maxIndex) {
-                currentIndex = (minIndex + maxIndex) / 2 | 0;
-                currentItemID = TWCT.lang.items[currentIndex].item_id;
-                if (currentItemID < id) {
-                    minIndex = currentIndex + 1;
-                } else if (currentItemID > id) {
-                    maxIndex = currentIndex - 1;
-                } else {
-                    return TWCT.lang.items[currentIndex];
-                }
-            }
-            return null;
-        };
         //Redefine item popup
         ItemPopup.prototype.getXHTML = function () {
             var item = this.item_obj;
             //Retrieve item translation object for item
-            var item_translation = findItemTranslationByID(item.item_id);
+            var item_translation = basic.findItemTranslationByID(item.item_id);
             //Check whether a translation was found
             if (item_translation == null) {
                 //Translation not found, take original strings into translation object
@@ -1472,7 +1576,7 @@ TWCT = function () {
         var stats = page.getElementsByTagName('th');
 
         //Translate stats
-        for(var i = 0; i < stats.length; i++){
+        for (var i = 0; i < stats.length; i++) {
             stats[i].innerHTML = TWCT.lang.character_stats[i];
         }
 
@@ -1559,7 +1663,7 @@ TWCT = function () {
 
         //Work time
         var work_time_options = page.getElementsByTagName('select')[0].getChildren();
-        for(var i = 0; i < work_time_options.length; i++){
+        for (var i = 0; i < work_time_options.length; i++) {
             work_time_options[i].innerHTML = TWCT.lang.work_time[i];
             work_time_options[i].label = TWCT.lang.work_time[i];
         }
@@ -1579,6 +1683,8 @@ TWCT = function () {
             js: data.js
         };
     };
+
+
     //Translate saloon window
     var translate_saloon_window = function (params, data) {
         //Fetch and wrap page content
@@ -1596,38 +1702,34 @@ TWCT = function () {
     };
     //Translate quest window
     var translate_quest_window = function (params, data) {
-        //Finds the matching quest translation for a given quest id using binary search; will return null if not found
-        var findQuestTranslationByID = function (id) {
-            var minIndex = 0;
-            var maxIndex = TWCT.lang.quests.length - 1;
-            var currentIndex = 0;
-            var currentItemID = 0;
-            while (minIndex <= maxIndex) {
-                currentIndex = (minIndex + maxIndex) / 2 | 0;
-                currentItemID = TWCT.lang.quests[currentIndex].quest_id;
-                if (currentItemID < id) {
-                    minIndex = currentIndex + 1;
-                } else if (currentItemID > id) {
-                    maxIndex = currentIndex - 1;
-                } else {
-                    return TWCT.lang.quests[currentIndex];
-                }
-            }
-            return null;
-        };
-
         //Fetch and wrap page content
         var page = document.createElement('div');
         page.innerHTML = data.page;
 
+        //Translate buttons
+        var images = page.getElementsByTagName('img');
+        for (var i = images.length - 1; i >= 0; i--) {
+            switch (images[i].id) {
+                case 'button_quest_accept':
+                    basic.replaceWestButton(images[i], TWCT.lang.accept_quest);
+                    break;
+                case 'button_quest_finish':
+                    basic.replaceWestButton(images[i], TWCT.lang.finish_quest);
+                    break;
+                case 'button_quest_cancel':
+                    basic.replaceWestButton(images[i], TWCT.lang.cancel_quest);
+                    break;
+            }
+        }
+
         //Look up the regarding quest
-        var quest = findQuestTranslationByID(params.quest_id);
+        var quest = basic.findQuestTranslationByID(params.quest_id);
 
         //Check for null (quest not found) - if so, don't change anything
 
         if (quest == null) {
             return {
-                page: data.page,
+                page: page.innerHTML,
                 js: data.js
             }
         }
@@ -1643,7 +1745,7 @@ TWCT = function () {
         //Change title
         page.getElementsByTagName('h3')[0].innerHTML = quest.questline + ' (' + quest.name + ')';
         //Build up quest sring
-        var quest_string = '<strong>' + TWCT.lang.employers[quest.employer] + ':<\/strong> ';
+        var quest_string = '<strong>' + TWCT.lang.employers[quest.employer].name + ':<\/strong> ';
         quest_string += quest.text;
         quest_string += '<br\/><br\/><strong>' + TWCT.lang.target + ':<\/strong> ';
         quest_string += quest.target;
@@ -1813,6 +1915,7 @@ TWCT = function () {
             translate_main_window();
             translate_main_menu();
             translate_task_queue();
+            translate_employer_window();
             translate_items();
         }
 
