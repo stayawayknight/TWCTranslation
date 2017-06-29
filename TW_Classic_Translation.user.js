@@ -4,7 +4,7 @@
 // @description Translates the content of the TW Classic version into German.
 // @include     *classic.the*west.net*
 // @run-at      document-end
-// @version     1.10
+// @version     1.11
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
@@ -812,7 +812,6 @@ TWCT = function () {
         document.getElementById('select_world_text').innerHTML = TWCT.lang.select_world;
         //Error login messages, therefore override login check function
         check_login = function () {
-            if ($('openid_identifier').value) return true;
             var url = 'index.php?ajax=check_login';
             var jSonRequest = new Json.Remote(url, {
                 method: 'post', onComplete: function (data) {
