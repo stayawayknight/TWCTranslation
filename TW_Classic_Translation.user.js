@@ -4,7 +4,7 @@
 // @description Translates the content of the TW Classic version into German.
 // @include     *classic.the*west.net*
 // @run-at      document-end
-// @version     1.09
+// @version     1.10
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
@@ -518,8 +518,6 @@ TWCT = function () {
         'der Lohn und die Gefahr sinkt.',
         level: 'Stufe',
         login_permanently: 'Dauerhaft einloggen',
-        login_with_name: 'Mit Spielernamen und Passwort einloggen',
-        login_with_oid: 'Login mit OpenID',
         logout: 'Logout',
         luck_description: '<strong>Glück:</strong> Mit etwas Glück bekommst oder findest du bei der Arbeit' +
         ' einen Gegenstand. Mit höherem Glück kannst du bessere Gegenstände finden. Durch den Premiumbonus' +
@@ -532,10 +530,8 @@ TWCT = function () {
         ' Wenn du eine Arbeit häufiger ausführst sinkt die Motivation. Mit der Zeit steigt sie wieder.',
         number_of_players: 'Spieleranzahl',
         ok: 'Ok',
-        oid_sign_up: 'Mit OpenID anmelden',
         open_quests: 'Offene Quests',
         password: 'Passwort:',
-        password_sign_up: 'Mit Passwort anmelden',
         player: 'Spieler',
         players: 'Spieler',
         player_not_exist: 'Dieser Spieler existiert nicht',
@@ -802,8 +798,6 @@ TWCT = function () {
             document.getElementById('password_area').getChildren() [0].innerHTML = TWCT.lang.password;
             document.getElementsByClassName('set_cookie') [0].getChildren() [0].innerHTML = '<input name="set_cookie_checkbox" id="set_cookie_checkbox" type="checkbox">' + TWCT.lang.login_permanently;
             document.getElementById('lost_pw').getChildren() [0].innerHTML = TWCT.lang.change_password;
-            document.getElementsByClassName('login_switch') [0].innerHTML = TWCT.lang.login_with_oid + '<img src="images/index/openid.png" alt="OpenID">';
-            document.getElementsByClassName('login_switch') [1].innerHTML = TWCT.lang.login_with_name;
         } else {
             //Cookie login
             document.getElementById('del_cookies').getChildren()[0].innerHTML = TWCT.lang.delete_login_cookies;
@@ -879,12 +873,7 @@ TWCT = function () {
         document.getElementById('register_agb_area').getChildren()[0].innerHTML = '<input name="agb" type="checkbox">'
             + TWCT.lang.accept_agb;
         document.getElementById('register_agb_area').getChildren()[1].innerHTML = '» ' + TWCT.lang.show;
-        document.getElementsByClassName('register_submit_area')[0].getChildren()[1].value = TWCT.lang.sign_up;
-        //OpenID sign up switch
-        document.getElementById('switch_to_openid_area').getChildren()[0].innerHTML = '» ' +
-            TWCT.lang.oid_sign_up;
-        document.getElementById('switch_to_password_area').getChildren()[0].innerHTML = '» ' +
-            TWCT.lang.password_sign_up;
+        document.getElementsByClassName('register_submit_area')[0].getChildren()[0].value = TWCT.lang.sign_up;
         //Error messages, therefore overwrite check function
         checkInput = function (type, value) {
             var url = 'index.php?page=register&ajax=check_input';
