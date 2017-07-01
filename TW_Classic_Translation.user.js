@@ -4,7 +4,7 @@
 // @description Translates the content of the TW Classic version into German.
 // @include     *classic.the*west.net*
 // @run-at      document-end
-// @version     1.11
+// @version     1.12
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
@@ -566,14 +566,14 @@ TWCT = function () {
         tasks: {
             nothing: 'Du machst gerade nichts.',
             job: 'Arbeit',
-            duel: 'Du duellierst einen anderen Spieler.',
+            duel: 'Du duellierst dich gerade.',
             sleep: 'Du schläfst gerade.',
-            pray: 'Du betest.',
+            pray: 'Du betest gerade.',
             found: 'Du gründest eine Stadt.',
-            refound: 'Du übernimmst eine Geisterstadt.',
-            build: 'Du errichtest ein Gebäude.',
-            walk: 'Du wanderst.',
-            way: 'Du wanderst.'
+            refound: 'Du besetzt eine Geisterstadt.',
+            build: 'Du baust deine Stadt aus.',
+            walk: 'Du gehst gerade.',
+            way: 'Du gehst gerade.'
         },
         target: 'Ziel',
         translation_in_progress: 'Übersetze.',
@@ -1444,8 +1444,12 @@ TWCT = function () {
 
                     //Translate table headers
                     var headers = page.getElementsByClassName('questlog_header');
-                    headers[0].innerHTML = headers[0].innerHTML.replace('Open quests', TWCT.lang.open_quests);
-                    headers[1].innerHTML = headers[1].innerHTML.replace('Completed quests', TWCT.lang.completed_quests);
+
+                    //Translate only when exsts
+                    for (var i = 0; i < headers.length; i++) {
+                        headers[i].innerHTML = headers[i].innerHTML.replace('Open quests', TWCT.lang.open_quests)
+                            .replace('Completed quests', TWCT.lang.completed_quests);
+                    }
 
                     //Iterate through all quests and translate them
                     var quest_entries = page.getElementsByClassName('questlog_entrie');
@@ -1739,12 +1743,12 @@ TWCT = function () {
         quest_string += quest.target;
 
         //Check whether there is a hint
-        if (quest.hint != null) {
+        if (quest.hint != null && quest.hint != '') {
             quest_string += '<br\/><br\/><strong>' + TWCT.lang.hint + ':<\/strong> ';
             quest_string += '<i>' + quest.hint + '</i>';
         }
 
-        quest_string += '<br \/><br \/><strong>' + TWCT.lang.requires + ':';
+        quest_string += '<br\/><br\/><strong>' + TWCT.lang.requires + ':';
 
         //Replace quest text with translation
         quest_content.innerHTML = quest_content.innerHTML.replace(/<strong>(.|\n)*<strong>Requires\:/g, quest_string);
@@ -1752,6 +1756,9 @@ TWCT = function () {
         //Perform further translations:
         quest_content.innerHTML = quest_content.innerHTML.replace('(Done)', '(' + TWCT.lang.done + ')')
             .replace('Reward:', TWCT.lang.reward + ':');
+
+        //Translate finish text
+        data.js = data.js.replace(/\.completion_text = \'.+\'\;/g, '.completion_text = \'' + quest.finish_text + '\';');
 
         return {
             page: page.innerHTML,
