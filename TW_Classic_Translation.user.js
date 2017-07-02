@@ -4,7 +4,7 @@
 // @description Translates the content of the TW Classic version into German.
 // @include     *classic.the*west.net*
 // @run-at      document-end
-// @version     1.12
+// @version     1.13
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
@@ -421,7 +421,9 @@ TWCT = function () {
         ],
         accept_agb: 'Ich akzeptiere die AGB.',
         accept_quest: 'Quest annehmen',
+        assign_attributes_and_skills: 'Attribute und Fertigkeiten vergeben',
         at_least_one_labor_point: 'Um eine Arbeit machen zu können brauchst du mindestens einen Arbeitspunkt.',
+        attributes: 'Attribute',
         automation_advert: 'Mit dem Premiumbonus <i>Automatisierung</i> kannst du vier Arbeiten in die' +
         'Arbeitsschleife einstellen, die nacheinander abgearbeitet werden.',
         bank_account_description: '<b>Konto</b>. Das Geld auf deinem Konto ist sicher. Es wird automatisch' +
@@ -434,14 +436,19 @@ TWCT = function () {
         center_character: 'Karte auf deinen Charakter zentrieren',
         center_map: 'Karte auf deine Stadt zentrieren',
         change: 'Ändern',
+        change_attributes_and_skills: 'Attribute und Fertigkeiten ändern',
         change_password: 'Passwort ändern',
         character_name: 'Charaktername:',
         character_stats: ['Stufe', 'Erfahrungspunkte', 'Lebenspunkte', 'Erholung', 'Geschwindigkeit', 'Duellstufe',
             'Duelle gewonnen', 'Duelle verloren'],
         completed_quests: 'Abgeschlossene Quests',
+        confirm: 'Bestätigen',
         confirm_password: 'Passwort bestätigen:',
         contact: 'Impressum',
+        costs_attributes: 'Kosten Attributpunkt',
+        costs_skills: 'Kosten Fertigkeitspunkt',
         current_assignments: 'Eingestellte Arbeiten',
+        costs_current: 'Derzeitige Kosten',
         damage: 'Schaden',
         danger_description: '<strong>Gefahr:</strong> Die Gefahr gibt das Verletzungsrisiko der Arbeit an.' +
         ' Je höher die Gefahr, desto schlimmere Verletzungen können entstehen. Je mehr Arbeitspunkte du einbringst,' +
@@ -559,6 +566,9 @@ TWCT = function () {
         sign_up: 'Anmelden',
         sign_up_at: 'Anmelden auf',
         skill_sum_description: '<strong>Summe der 5 Fertigkeiten:</strong> Dieses sind die Punkte, die dein Charakter in die Arbeit einbringt. Ziehst du die Schwierigkeit ab, so erhältst du die für diese Arbeit eingebrachten Arbeitspunkte.',
+        skilled_attributes: 'vergebene Attributpunkte',
+        skilled_skills: 'vergebene Fertigkeitspunkte',
+        skills: 'Fertigkeiten',
         sleeping: 'Schlafen',
         speed: 'Geschwindigkeit',
         start_date: 'Startdatum',
@@ -909,6 +919,11 @@ TWCT = function () {
     var translate_townforum = function () {
         //TODO
     };
+    //Translate the help
+    var translate_help = function () {
+        //TODO
+    };
+
     //Translate general strings which do not belong to a specific ui element
     var translate_general = function () {
         //Apply attribute translations
@@ -1558,6 +1573,7 @@ TWCT = function () {
             return xhtml;
         };
     };
+
     //Translate the character window
     var translate_character_window = function (params, data) {
 
@@ -1571,6 +1587,58 @@ TWCT = function () {
         for (var i = 0; i < stats.length; i++) {
             stats[i].innerHTML = TWCT.lang.character_stats[i];
         }
+
+        return {
+            page: page.innerHTML,
+            js: data.js
+        };
+    };
+
+    //Translate the skill window
+    var translate_skill_window = function (params, data) {
+        //Fetch and wrap page content
+        var page = document.createElement('div');
+        page.innerHTML = data.page;
+
+        //Translate reskill overview
+        page.getElementsByClassName('skill_content_reskill_title')[0].innerHTML =
+            TWCT.lang.change_attributes_and_skills;
+        page.getElementsByClassName('skill_icon_reskill_current')[0].innerHTML =
+            TWCT.lang.costs_current + ':';
+        page.getElementsByClassName('skill_icon_reskill_attribute')[0].innerHTML =
+            TWCT.lang.costs_attributes + ':';
+        page.getElementsByClassName('skill_icon_reskill_skill')[0].innerHTML =
+            TWCT.lang.costs_skills + ':';
+
+        //Translate skill overview
+        page.getElementsByClassName('skill_content_reskill_title')[1].innerHTML =
+            TWCT.lang.assign_attributes_and_skills;
+        page.getElementsByClassName('skill_icon_reskill_attribute')[1].innerHTML =
+            TWCT.lang.skilled_attributes + ':';
+        page.getElementsByClassName('skill_icon_reskill_skill')[1].innerHTML =
+            TWCT.lang.skilled_skills + ':';
+
+        //Skill button labels
+        var label_cells = page.getElementsByTagName('td');
+        label_cells[2].innerHTML = TWCT.lang.attributes;
+        label_cells[3].innerHTML = TWCT.lang.skills;
+
+        //Buttons
+        var all_images = page.getElementsByTagName('img');
+        for (var i = all_images.length - 1; i >= 0; i--) {
+            if (all_images[i].id == 'skill_reskill_confirm_button') {
+                basic.replaceWestButton(all_images[i], TWCT.lang.confirm);
+            } else if (all_images[i].id == 'skill_reskill_cancel_button') {
+                basic.replaceWestButton(all_images[i], TWCT.lang.cancel);
+            }
+        }
+
+        //Translate attributes
+        var table_cells = page.getElementsByClassName('skill_attribute_skills')[0].getElementsByTagName('td');
+        table_cells[1].innerHTML = TWCT.lang.attribute_names['strength'];
+        table_cells[3].innerHTML = TWCT.lang.attribute_names['flexibility'];
+        table_cells[5].innerHTML = TWCT.lang.attribute_names['dexterity'];
+        table_cells[7].innerHTML = TWCT.lang.attribute_names['charisma'];
 
         return {
             page: page.innerHTML,
@@ -1768,7 +1836,7 @@ TWCT = function () {
 
 
     //Performs AjaxWindow injection for handling AjaxWindow events
-    var inject_ajax_window = function (handler_character_window, handler_job_window, handler_saloon_window, handler_quest_window) {
+    var inject_ajax_window = function (handler_character_window, handler_skill_window, handler_job_window, handler_saloon_window, handler_quest_window) {
         //Called when Ajax window has to be opened. Manages the request and calls a matching user function given as
         //parameter in order to manipulate the html or javascript data for translation purposes
         var inject_handler = function (name, params, data) {
@@ -1783,6 +1851,11 @@ TWCT = function () {
                         return data;
                     }
                     return handler_character_window(params, data);
+                case 'skill':
+                    if (handler_skill_window == null) {
+                        return data;
+                    }
+                    return handler_skill_window(params, data);
                 case 'job':
                     if (handler_job_window == null) {
                         return data;
@@ -1869,7 +1942,10 @@ TWCT = function () {
             if (document.location.pathname.indexOf('forum.php') !== -1) {
                 //In forum
                 translate_townforum();
-            } else {
+            } else if (document.location.pathname.indexOf('help.php') !== -1) {
+                translate_help();
+            }
+            else {
 
                 //Not ingame and not in forum, translate general start page strings
                 translate_startpage();
@@ -1898,12 +1974,13 @@ TWCT = function () {
             init();
 
             var handler_character_window = translate_character_window;
+            var handler_skill_window = translate_skill_window;
             var handler_job_window = translate_job_window;
             var handler_saloon_window = translate_saloon_window;
             var handler_quest_window = translate_quest_window;
 
             //Perform ajax window inject
-            inject_ajax_window(handler_character_window, handler_job_window, handler_saloon_window, handler_quest_window);
+            inject_ajax_window(handler_character_window, handler_skill_window, handler_job_window, handler_saloon_window, handler_quest_window);
             //Perform translations
             translate_general();
             translate_map();
@@ -1935,9 +2012,10 @@ TWCT = function () {
             }, 1000);
         });
     };
-    //Finally execute the whole translation process, execute main function
+//Finally execute the whole translation process, execute main function
     TWCT.run();
-};
+}
+;
 //Wait until DOM is ready and inject script
 window.onload = function () {
     contentEval(TWCT);
