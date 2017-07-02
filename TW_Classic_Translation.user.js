@@ -4,7 +4,7 @@
 // @description Translates the content of the TW Classic version into German.
 // @include     *classic.the*west.net*
 // @run-at      document-end
-// @version     1.13
+// @version     1.14
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
@@ -426,6 +426,7 @@ TWCT = function () {
         attributes: 'Attribute',
         automation_advert: 'Mit dem Premiumbonus <i>Automatisierung</i> kannst du vier Arbeiten in die' +
         'Arbeitsschleife einstellen, die nacheinander abgearbeitet werden.',
+        backpack: 'Gepäck',
         bank_account_description: '<b>Konto</b>. Das Geld auf deinem Konto ist sicher. Es wird automatisch' +
         ' abgebucht, wenn dein Bargeld zum Bezahlen nicht reicht.',
         begin_work: 'Arbeit beginnen',
@@ -1646,6 +1647,21 @@ TWCT = function () {
         };
     };
 
+    //Translate the inventory window
+    var translate_inventory_window = function (params, data) {
+        //Fetch and wrap page content
+        var page = document.createElement('div');
+        page.innerHTML = data.page;
+
+        //Translate heading
+        page.getElementsByTagName('h2')[0].innerHTML = TWCT.lang.backpack;
+
+        return {
+            page: page.innerHTML,
+            js: data.js
+        };
+    };
+
     //Translate the job window
     var translate_job_window = function (params, data) {
 
@@ -1836,7 +1852,7 @@ TWCT = function () {
 
 
     //Performs AjaxWindow injection for handling AjaxWindow events
-    var inject_ajax_window = function (handler_character_window, handler_skill_window, handler_job_window, handler_saloon_window, handler_quest_window) {
+    var inject_ajax_window = function (handler_character_window, handler_skill_window, handler_inventory_window, handler_job_window, handler_saloon_window, handler_quest_window) {
         //Called when Ajax window has to be opened. Manages the request and calls a matching user function given as
         //parameter in order to manipulate the html or javascript data for translation purposes
         var inject_handler = function (name, params, data) {
@@ -1856,6 +1872,11 @@ TWCT = function () {
                         return data;
                     }
                     return handler_skill_window(params, data);
+                case 'inventory':
+                    if (handler_inventory_window == null) {
+                        return data;
+                    }
+                    return handler_inventory_window(params, data);
                 case 'job':
                     if (handler_job_window == null) {
                         return data;
@@ -1975,12 +1996,13 @@ TWCT = function () {
 
             var handler_character_window = translate_character_window;
             var handler_skill_window = translate_skill_window;
+            var handler_inventory_window = translate_inventory_window;
             var handler_job_window = translate_job_window;
             var handler_saloon_window = translate_saloon_window;
             var handler_quest_window = translate_quest_window;
 
             //Perform ajax window inject
-            inject_ajax_window(handler_character_window, handler_skill_window, handler_job_window, handler_saloon_window, handler_quest_window);
+            inject_ajax_window(handler_character_window, handler_skill_window, handler_inventory_window, handler_job_window, handler_saloon_window, handler_quest_window);
             //Perform translations
             translate_general();
             translate_map();
