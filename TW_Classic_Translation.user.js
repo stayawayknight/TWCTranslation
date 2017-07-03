@@ -4,7 +4,7 @@
 // @description Translates the content of the TW Classic version into German.
 // @include     *classic.the*west.net*
 // @run-at      document-end
-// @version     1.14
+// @version     1.15
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
@@ -1738,10 +1738,12 @@ TWCT = function () {
         begin_work_table_elements[3].innerHTML = TWCT.lang.duration;
 
         //Work time
-        var work_time_options = page.getElementsByTagName('select')[0].getChildren();
-        for (var i = 0; i < work_time_options.length; i++) {
-            work_time_options[i].innerHTML = TWCT.lang.work_time[i];
-            work_time_options[i].label = TWCT.lang.work_time[i];
+        if (page.getElementsByTagName('select').length > 0) {
+            var work_time_options = page.getElementsByTagName('select')[0].getChildren();
+            for (var i = 0; i < work_time_options.length; i++) {
+                work_time_options[i].innerHTML = TWCT.lang.work_time[i];
+                work_time_options[i].label = TWCT.lang.work_time[i];
+            }
         }
 
 
