@@ -441,7 +441,7 @@ TWCT = function () {
         change_password: 'Passwort ändern',
         character_name: 'Charaktername:',
         character_stats: ['Stufe', 'Erfahrungspunkte', 'Lebenspunkte', 'Erholung', 'Geschwindigkeit', 'Duellstufe',
-            'Duelle gewonnen', 'Duelle verloren'],
+                          'Duelle gewonnen', 'Duelle verloren'],
         completed_quests: 'Abgeschlossene Quests',
         confirm: 'Bestätigen',
         confirm_password: 'Passwort bestätigen:',
@@ -861,7 +861,7 @@ TWCT = function () {
         var cells = document.getElementsByTagName('td');
         for (var i = 0; i < cells.length; i++)[
             cells[i].innerHTML = cells[i].innerHTML.replace('(Recommended)', '(' +
-                TWCT.lang.recommended + ')')
+                                                            TWCT.lang.recommended + ')')
         ]
     };
     //Translate the register page, before the player logs in
@@ -890,23 +890,23 @@ TWCT = function () {
             var jSonRequest = new Json.Remote(url, {
                 method: 'post', onComplete: function (data) {
                     data = data.replace('The E-Mail is connected to another account already',
-                        TWCT.lang.errors.mail_already_taken)
+                                        TWCT.lang.errors.mail_already_taken)
                         .replace('Invalid E-Mail', TWCT.lang.errors.mail_invalid)
                         .replace('This name is already taken by another player',
-                            TWCT.lang.errors.name_already_taken)
+                                 TWCT.lang.errors.name_already_taken)
                         .replace('Two consecutive spaces are not allowed', TWCT.lang.errors.name_has_double_spaces)
                         .replace('The name contains signs that are not allowed in this language version',
-                            TWCT.lang.errors.name_has_invalid_signs)
+                                 TWCT.lang.errors.name_has_invalid_signs)
                         .replace('The name may not end or begin with a space', TWCT.lang.errors.name_has_spaces)
                         .replace('The user name must not be longer than 20 characters',
-                            TWCT.lang.errors.name_too_long)
+                                 TWCT.lang.errors.name_too_long)
                         .replace('The user name has to be at least 3 characters long',
-                            TWCT.lang.errors.name_too_short)
+                                 TWCT.lang.errors.name_too_short)
                         .replace('The OpenID is already in use', TWCT.lang.errors.oid_already_taken)
                         .replace('The password must not begin or end with a space',
-                            TWCT.lang.errors.password_has_spaces)
+                                 TWCT.lang.errors.password_has_spaces)
                         .replace('The password has to be at least 5 characters long',
-                            TWCT.lang.errors.password_too_short);
+                                 TWCT.lang.errors.password_too_short);
                     $(type + '_error').setText(data == 'OK' ? '' : data);
                 }
             }).send({type: type, value: value});
@@ -997,7 +997,7 @@ TWCT = function () {
                         y
                     ])
                 }.pass([ppl.x,
-                    ppl.y]));
+                        ppl.y]));
                 area.addEvent('mouseout', function (event) {
                     $clear(WMap.people_timer);
                 });
@@ -1275,7 +1275,12 @@ TWCT = function () {
         //Stores the fader element of each menu item
         var fader_element = null;
         //Exchange the graphics of all menu items
+        var menus = ['character','skill','inventory','saloon','town','townforum','duel','ranking','premium','messages','reports','work','settings'];
         for (var i = 0; i < menu_items.length; i++) {
+            if (!menus.includes(menu_items[i].parentElement.id.slice(5))){
+                continue;
+            }
+
             menu_items[i].style['background-image'] = 'url(' + TWCT.res.menu_image + ')';
             //Check for activated fader
             fader_element = menu_items[i].children[0];
@@ -1693,37 +1698,37 @@ TWCT = function () {
         page.getElementsByClassName('missing_task_point_notice') [0].innerHTML = TWCT.lang.missing_labor_points.replace('%1', (labor_points) * ( -1) + 1);
         var small_warning = page.getElementsByClassName('missing_task_point_notice') [0].parentElement;
         small_warning.innerHTML = small_warning.innerHTML.replace('To work on a job you need at least' +
-            ' one labor point.', TWCT.lang.at_least_one_labor_point);
+                                                                  ' one labor point.', TWCT.lang.at_least_one_labor_point);
         //Translate job attributes in javascript using regex
         //Wages
         data.js = data.js.replace(/MousePopup\('<strong>Wages:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.wage_description + '\'');
+                                  TWCT.lang.wage_description + '\'');
         //Experience
         data.js = data.js.replace(/MousePopup\('<strong>Experience:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.experience_description + '\'');
+                                  TWCT.lang.experience_description + '\'');
         //Luck
         data.js = data.js.replace(/MousePopup\('<strong>Luck:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.luck_description + '\'');
+                                  TWCT.lang.luck_description + '\'');
         //Danger
         data.js = data.js.replace(/MousePopup\('<strong>Danger:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.danger_description + '\'');
+                                  TWCT.lang.danger_description + '\'');
         //Motivation
         data.js = data.js.replace(/MousePopup\('<strong>Motivation:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.motivation_description + '\'');
+                                  TWCT.lang.motivation_description + '\'');
 
         //Sum of the 5 Skills
         data.js = data.js.replace(/MousePopup\('<strong>Sum of the 5 Skills:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.skill_sum_description + '\'');
+                                  TWCT.lang.skill_sum_description + '\'');
         //Difficulty
         data.js = data.js.replace(/MousePopup\('<strong>Difficulty of the job:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.difficulty_description + '\'');
+                                  TWCT.lang.difficulty_description + '\'');
         //Labor points
         data.js = data.js.replace(/MousePopup\('<strong>Labor points:.*'/g, 'MousePopup(\'' +
-            TWCT.lang.labor_points_description + '\'');
+                                  TWCT.lang.labor_points_description + '\'');
 
         //Product find chance
         data.js = data.js.replace(/MousePopup\('The probability to find the item\<br \/\>within 30 minutes of work is\D*/g, 'MousePopup(\'' +
-            TWCT.lang.product_find_chance);
+                                  TWCT.lang.product_find_chance);
 
 
         //Container for starting job
@@ -2036,7 +2041,7 @@ TWCT = function () {
             }, 1000);
         });
     };
-//Finally execute the whole translation process, execute main function
+    //Finally execute the whole translation process, execute main function
     TWCT.run();
 }
 ;
