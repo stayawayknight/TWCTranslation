@@ -6,7 +6,7 @@
 // @exclude     *classic.the-west.net/help.php*
 // @exclude     *classic.the-west.net/?page=error*
 // @run-at      document-end
-// @version     1.15
+// @version     1.16
 // @grant       none
 // @author      stayawayknight
 // ==/UserScript==
